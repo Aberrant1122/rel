@@ -168,12 +168,12 @@ export default function Dashboard() {
                     change={kpi.change}
                     trend={kpi.trend}
                     icon={
-                      kpi.title === 'Total Leads'
+                      kpi.title.includes('Bookings')
                         ? Users
-                        : kpi.title === 'Revenue'
+                        : kpi.title.includes('Revenue')
                           ? DollarSign
-                          : kpi.title === 'Conversion Rate'
-                            ? TrendingUp
+                          : kpi.title.includes('Clients')
+                            ? Users
                             : BarChart3
                     }
                   />
@@ -182,19 +182,7 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              <Link
-                href="/pipeline"
-                className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-emerald-300 transition-all duration-200 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-slate-600">View Pipeline</p>
-                    <p className="text-xs text-slate-500 mt-1">Manage your deals</p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-                </div>
-              </Link>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
               <Link
                 href="/tasks"
                 className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md hover:border-emerald-300 transition-all duration-200 group"

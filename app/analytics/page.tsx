@@ -138,9 +138,9 @@ export default function Analytics() {
 
               {/* Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Revenue Trend */}
+                {/* Booking Trend */}
                 <div className="bg-white rounded-lg border border-slate-200 p-6">
-                  <h3 className="text-base font-semibold text-slate-900 mb-5">Revenue & Leads Trend</h3>
+                  <h3 className="text-base font-semibold text-slate-900 mb-5">Booking & Revenue Trend</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={revenueData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -175,10 +175,10 @@ export default function Analytics() {
                         yAxisId="left"
                         type="monotone"
                         dataKey="revenue"
-                        stroke="#059669"
+                        stroke="#0f172a"
                         strokeWidth={2.5}
-                        name="Revenue ($)"
-                        dot={{ fill: '#059669', r: 4 }}
+                        name="Est. Revenue ($)"
+                        dot={{ fill: '#0f172a', r: 4 }}
                       />
                       <Line
                         yAxisId="right"
@@ -186,16 +186,16 @@ export default function Analytics() {
                         dataKey="leads"
                         stroke="#10b981"
                         strokeWidth={2.5}
-                        name="Leads"
+                        name="Bookings"
                         dot={{ fill: '#10b981', r: 4 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
-                {/* Conversion Funnel */}
+                {/* Passenger Distribution */}
                 <div className="bg-white rounded-lg border border-slate-200 p-6">
-                  <h3 className="text-base font-semibold text-slate-900 mb-5">Lead Conversion Funnel</h3>
+                  <h3 className="text-base font-semibold text-slate-900 mb-5">Passenger Count Distribution</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={conversionData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -216,7 +216,7 @@ export default function Analytics() {
                           fontSize: '12px'
                         }}
                       />
-                      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Total Bookings">
                         {conversionData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
@@ -226,19 +226,19 @@ export default function Analytics() {
                 </div>
               </div>
 
-              {/* Pipeline Distribution */}
+              {/* Location Distribution */}
               <div className="bg-white rounded-lg border border-slate-200 p-6">
-                <h3 className="text-base font-semibold text-slate-900 mb-5">Pipeline Distribution</h3>
+                <h3 className="text-base font-semibold text-slate-900 mb-5">Top Pickup Locations</h3>
                 <div className="flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={350}>
+                  <ResponsiveContainer width="100%" height={400}>
                     <PieChart>
                       <Pie
                         data={distributionData}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={120}
+                        labelLine={true}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        outerRadius={140}
                         fill="#8884d8"
                         dataKey="value"
                       >
