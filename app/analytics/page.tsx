@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import {
   TrendingUp,
   Calendar,
@@ -26,7 +26,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import analyticsService from '@/app/services/analyticsService';
 
-export default function Analytics() {
+function AnalyticsContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -263,5 +263,17 @@ export default function Analytics() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function Analytics() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      </div>
+    }>
+      <AnalyticsContent />
+    </Suspense>
   );
 }

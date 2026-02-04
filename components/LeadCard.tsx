@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { User, ChevronRight, GripVertical } from 'lucide-react';
-import { Lead } from '@/app/services/leadsService';
+import { Lead } from '@/types';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

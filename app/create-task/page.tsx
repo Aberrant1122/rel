@@ -6,7 +6,8 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import PrivateRoute from '../components/auth/PrivateRoute';
 import { createTask } from '../services/tasksService';
-import { getLeads, Lead } from '../services/leadsService';
+import { getBookings, Booking } from '../services/formsService';
+import { getAllUsers, User as UserType } from '../services/userService';
 import {
     Calendar,
     FileText,
@@ -16,6 +17,7 @@ import {
     Loader2,
     User,
 } from 'lucide-react';
+import { Lead } from '@/types';
 
 function CreateTaskForm() {
     const router = useRouter();
@@ -33,16 +35,20 @@ function CreateTaskForm() {
         priority: 'Medium',
         status: 'Pending',
         lead_id: '',
+        assigned_to: '',
     });
 
-    const [leads, setLeads] = useState<Lead[]>([]);
-    const [loadingLeads, setLoadingLeads] = useState(true);
+    const [bookings, setBookings] = useState<Lead[]>([]);
+    const [loadingBookings, setLoadingBookings] = useState(true);
+    const [employees, setEmployees] = useState<UserType[]>([]);
+    const [loadingEmployees, setLoadingEmployees] = useState(true);
 
     const priorityOptions = ['High', 'Medium', 'Low'];
     const statusOptions = ['Pending', 'In Progress', 'Completed'];
 
     useEffect(() => {
-        fetchLeads();
+        fetchBookings();
+        fetchEmployees();
 
         // Pre-select lead if passed as query parameter
         const leadId = searchParams.get('lead_id');
@@ -51,21 +57,42 @@ function CreateTaskForm() {
         }
     }, [searchParams]);
 
-    const fetchLeads = async () => {
+    const fetchBookings = async () => {
         try {
-            setLoadingLeads(true);
-            const response = await getLeads();
-            if (response.success) {
-                // Filter active leads (not Won or Lost)
-                const activeLeads = response.data.leads.filter(
-                    lead => !['Won', 'Lost', 'Closed Won', 'Closed Lost'].includes(lead.stage)
-                );
-                setLeads(activeLeads);
-            }
+            setLoadingBookings(true);
+            const bookingsData = await getBookings();
+
+            // Map bookings to Lead format for the dropdown
+            const mappedLeads: Lead[] = bookingsData.map((booking: Booking) => ({
+                id: booking.id,
+                name: booking.fullName || 'Unknown',
+                phone: booking.phone || '',
+                email: booking.email || '',
+                stage: 'Booking',
+                source: 'Form',
+                created_at: booking.createdAt || new Date().toISOString(),
+                updated_at: booking.createdAt || new Date().toISOString(),
+            }));
+
+            setBookings(mappedLeads);
         } catch (error) {
-            console.error('Error fetching leads:', error);
+            console.error('Error fetching bookings for tasks:', error);
         } finally {
-            setLoadingLeads(false);
+            setLoadingBookings(false);
+        }
+    };
+
+    const fetchEmployees = async () => {
+        try {
+            setLoadingEmployees(true);
+            const usersResp = await getAllUsers();
+            // The response is { success: true, message: ..., data: { users: [], total: ... } }
+            const users = usersResp.data?.users || usersResp.users || usersResp;
+            setEmployees(users);
+        } catch (error) {
+            console.error('Error fetching employees:', error);
+        } finally {
+            setLoadingEmployees(false);
         }
     };
 
@@ -95,6 +122,7 @@ function CreateTaskForm() {
                     priority: formData.priority as 'High' | 'Medium' | 'Low',
                     status: formData.status as 'Pending' | 'In Progress' | 'Completed',
                     lead_id: formData.lead_id ? parseInt(formData.lead_id) : undefined,
+                    assigned_to: formData.assigned_to ? parseInt(formData.assigned_to) : undefined,
                 };
 
                 const response = await createTask(taskData);
@@ -109,6 +137,7 @@ function CreateTaskForm() {
                         priority: 'Medium',
                         status: 'Pending',
                         lead_id: '',
+                        assigned_to: '',
                     });
 
                     setTimeout(() => {
@@ -203,8 +232,8 @@ function CreateTaskForm() {
                                                     value={formData.title}
                                                     onChange={handleChange}
                                                     className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${errors.title
-                                                            ? 'border-red-300 bg-red-50'
-                                                            : 'border-slate-300 bg-white'
+                                                        ? 'border-red-300 bg-red-50'
+                                                        : 'border-slate-300 bg-white'
                                                         }`}
                                                     placeholder="Follow up with client"
                                                 />
@@ -299,12 +328,42 @@ function CreateTaskForm() {
                                             </select>
                                         </div>
 
+                                        <div>
+                                            <label
+                                                htmlFor="assigned_to"
+                                                className="block text-sm font-medium text-slate-700 mb-2"
+                                            >
+                                                Assign to Employee
+                                            </label>
+                                            <div className="relative">
+                                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                                <select
+                                                    id="assigned_to"
+                                                    name="assigned_to"
+                                                    value={formData.assigned_to}
+                                                    onChange={handleChange}
+                                                    className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white transition-all"
+                                                    disabled={loadingEmployees}
+                                                >
+                                                    <option value="">Select an employee (optional)</option>
+                                                    {employees.map((emp) => (
+                                                        <option key={emp.id} value={emp.id}>
+                                                            {emp.name} ({emp.role})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            {loadingEmployees && (
+                                                <p className="text-xs text-slate-500 mt-1">Loading employees...</p>
+                                            )}
+                                        </div>
+
                                         <div className="md:col-span-2">
                                             <label
                                                 htmlFor="lead_id"
                                                 className="block text-sm font-medium text-slate-700 mb-2"
                                             >
-                                                Assign to Lead (Optional)
+                                                Assign to Booking (Optional)
                                             </label>
                                             <div className="relative">
                                                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -314,18 +373,18 @@ function CreateTaskForm() {
                                                     value={formData.lead_id}
                                                     onChange={handleChange}
                                                     className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white transition-all"
-                                                    disabled={loadingLeads}
+                                                    disabled={loadingBookings}
                                                 >
-                                                    <option value="">Select a lead (optional)</option>
-                                                    {leads.map((lead) => (
-                                                        <option key={lead.id} value={lead.id}>
-                                                            {lead.name} - {lead.email || lead.phone}
+                                                    <option value="">Select a booking (optional)</option>
+                                                    {bookings.map((booking) => (
+                                                        <option key={booking.id} value={booking.id}>
+                                                            {booking.name} - {booking.email || booking.phone}
                                                         </option>
                                                     ))}
                                                 </select>
                                             </div>
-                                            {loadingLeads && (
-                                                <p className="text-xs text-slate-500 mt-1">Loading leads...</p>
+                                            {loadingBookings && (
+                                                <p className="text-xs text-slate-500 mt-1">Loading bookings...</p>
                                             )}
                                         </div>
                                     </div>

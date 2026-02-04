@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Users, UserPlus, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,10 +9,10 @@ import Header from '@/components/Header';
 import SecurityCard from '@/components/SecurityCard';
 import { useAuth } from '../context/AuthContext';
 
-export default function SettingsPage() {
+function SettingsContent() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const { logout } = useAuth();
+    const { logout, isAdmin } = useAuth();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -43,34 +43,38 @@ export default function SettingsPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* All Users */}
-                            <Link href="/all-users">
-                                <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <div className="p-2 bg-slate-100 rounded-lg">
-                                            <Users className="h-5 w-5 text-slate-700" />
+                            {isAdmin && (
+                                <Link href="/all-users">
+                                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer">
+                                        <div className="flex items-center space-x-3 mb-4">
+                                            <div className="p-2 bg-slate-100 rounded-lg">
+                                                <Users className="h-5 w-5 text-slate-700" />
+                                            </div>
+                                            <h3 className="text-base font-semibold text-slate-900">All Users</h3>
                                         </div>
-                                        <h3 className="text-base font-semibold text-slate-900">All Users</h3>
+                                        <p className="text-sm text-slate-600">
+                                            View and manage all users in the system
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-slate-600">
-                                        View and manage all users in the system
-                                    </p>
-                                </div>
-                            </Link>
+                                </Link>
+                            )}
 
                             {/* Create User */}
-                            <Link href="/create-user">
-                                <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <div className="p-2 bg-blue-50 rounded-lg">
-                                            <UserPlus className="h-5 w-5 text-blue-600" />
+                            {isAdmin && (
+                                <Link href="/create-user">
+                                    <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer">
+                                        <div className="flex items-center space-x-3 mb-4">
+                                            <div className="p-2 bg-blue-50 rounded-lg">
+                                                <UserPlus className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <h3 className="text-base font-semibold text-slate-900">Create User</h3>
                                         </div>
-                                        <h3 className="text-base font-semibold text-slate-900">Create User</h3>
+                                        <p className="text-sm text-slate-600">
+                                            Add a new user to the system
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-slate-600">
-                                        Add a new user to the system
-                                    </p>
-                                </div>
-                            </Link>
+                                </Link>
+                            )}
 
                             {/* Logout Section */}
                             <div className="bg-white rounded-lg border border-red-200 p-6 md:col-span-2">
@@ -113,5 +117,17 @@ export default function SettingsPage() {
                 </main>
             </div>
         </div>
+    );
+}
+
+export default function SettingsPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen bg-slate-50 items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+            </div>
+        }>
+            <SettingsContent />
+        </Suspense>
     );
 }

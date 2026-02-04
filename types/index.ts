@@ -1,17 +1,16 @@
 // Centralized type definitions
 
 export interface Lead {
-    id: number;
+    id: number | string;
     name: string;
-    company: string;
-    email: string;
     phone: string;
-    status: string;
-    value: number | string;
-    priority: 'High' | 'Medium' | 'Low';
-    lastContact: string;
+    email?: string;
+    stage: string;
     source: string;
-    assignedTo: string;
+    last_message?: string;
+    last_message_at?: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Task {

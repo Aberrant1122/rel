@@ -8,6 +8,7 @@ export interface Task {
     priority: 'High' | 'Medium' | 'Low';
     status: 'Pending' | 'In Progress' | 'Completed';
     lead_id?: number;
+    assigned_to?: number;
     user_id: number;
     created_at: string;
     updated_at: string;
@@ -30,6 +31,7 @@ export interface CreateTaskData {
     priority?: 'High' | 'Medium' | 'Low';
     status?: 'Pending' | 'In Progress' | 'Completed';
     lead_id?: number;
+    assigned_to?: number;
 }
 
 /**
@@ -39,6 +41,7 @@ export const getTasks = async (params?: {
     status?: string;
     priority?: string;
     lead_id?: number;
+    assigned_to?: number;
 }): Promise<TasksResponse> => {
     const response = await api.get('/tasks', { params });
     return response.data;

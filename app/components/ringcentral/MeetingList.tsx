@@ -29,12 +29,13 @@ export default function MeetingList({ meetings, loading, onRefresh, onMeetingDel
         if (diffMins < 60) return `In ${diffMins} minutes`;
         if (diffHours < 24) return `In ${diffHours} hours`;
         if (diffDays < 7) return `In ${diffDays} days`;
-        
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
+
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: true
         });
     };
 
@@ -106,7 +107,7 @@ export default function MeetingList({ meetings, loading, onRefresh, onMeetingDel
                     </button>
                 </div>
             )}
-            
+
             <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                 {meetings.map((meeting) => (
                     <div
@@ -139,7 +140,7 @@ export default function MeetingList({ meetings, loading, onRefresh, onMeetingDel
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex flex-wrap gap-2 mb-3">
                                     <a
                                         href={meeting.join_url}
@@ -177,7 +178,7 @@ export default function MeetingList({ meetings, loading, onRefresh, onMeetingDel
                                         )}
                                     </button>
                                 </div>
-                                
+
                                 {meeting.password && (
                                     <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
                                         <span className="text-xs font-medium text-amber-800">Password:</span>
@@ -185,7 +186,7 @@ export default function MeetingList({ meetings, loading, onRefresh, onMeetingDel
                                     </div>
                                 )}
                             </div>
-                            
+
                             <button
                                 onClick={() => handleDelete(meeting.meeting_id)}
                                 disabled={deletingId === meeting.meeting_id}

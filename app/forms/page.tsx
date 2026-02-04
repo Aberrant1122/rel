@@ -45,7 +45,7 @@ export default function FormsPage() {
         try {
             // Check if it's a firebase timestamp or string
             const date = new Date(dateString);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         } catch {
             return dateString;
         }
@@ -94,8 +94,8 @@ export default function FormsPage() {
                                                 key={booking.id}
                                                 onClick={() => handleBookingClick(booking)}
                                                 className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors border-l-4 ${selectedBooking?.id === booking.id
-                                                        ? 'bg-emerald-50 border-emerald-500'
-                                                        : 'border-transparent'
+                                                    ? 'bg-emerald-50 border-emerald-500'
+                                                    : 'border-transparent'
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start mb-1">

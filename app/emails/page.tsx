@@ -102,7 +102,7 @@ export default function EmailsPage() {
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
             if (days === 0) {
-                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
             } else if (days === 1) {
                 return 'Yesterday';
             } else if (days < 7) {
@@ -297,7 +297,7 @@ export default function EmailsPage() {
                                                         <Calendar className="h-4 w-4 text-slate-400" />
                                                         <span className="text-slate-600">Date:</span>
                                                         <span className="text-slate-900">
-                                                            {new Date(parseInt(selectedEmail.internalDate)).toLocaleString()}
+                                                            {new Date(parseInt(selectedEmail.internalDate)).toLocaleString('en-US', { hour12: true })}
                                                         </span>
                                                     </div>
                                                 </div>

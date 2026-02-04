@@ -151,7 +151,7 @@ export default function CalendarPage() {
     const formatTimeRange = (start: string, end: string) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
-        return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        return `${startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })} - ${endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
     };
 
     const formatDate = (date: Date) => {
@@ -438,8 +438,8 @@ export default function CalendarPage() {
                                                         key={mode}
                                                         onClick={() => setViewMode(mode)}
                                                         className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors capitalize ${viewMode === mode
-                                                                ? 'bg-white text-slate-900 shadow-sm'
-                                                                : 'text-slate-600 hover:text-slate-900'
+                                                            ? 'bg-white text-slate-900 shadow-sm'
+                                                            : 'text-slate-600 hover:text-slate-900'
                                                             }`}
                                                     >
                                                         {mode}
@@ -557,8 +557,8 @@ export default function CalendarPage() {
                                                                                         rel="noopener noreferrer"
                                                                                         onClick={(e) => e.stopPropagation()}
                                                                                         className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${isPast
-                                                                                                ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                                                                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                                                                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                                                                            : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                                                                             }`}
                                                                                     >
                                                                                         <Video className="h-4 w-4 mr-1" />
