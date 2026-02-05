@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, Phone, Mail, CheckCircle, Clock, AlertCircle, ChevronDown, Loader2 } from 'lucide-react';
+import { Calendar, Trash2, CheckCircle, Clock, AlertCircle, ChevronDown, Loader2 } from 'lucide-react';
 import { Task } from '@/types';
 import { formatDate, getPriorityColor, getTaskStatusColor } from '@/lib/utils';
-import { updateTaskStatus } from '@/app/services/tasksService';
+import { updateTaskStatus, deleteTask } from '@/app/services/tasksService';
 
 interface TaskCardProps {
     task: Task;
     onStatusUpdate?: (taskId: number, newStatus: 'Pending' | 'In Progress' | 'Completed') => void;
+    onDelete?: (taskId: number) => void;
 }
 
-export default function TaskCard({ task, onStatusUpdate }: TaskCardProps) {
+export default function TaskCard({ task, onStatusUpdate, onDelete }: TaskCardProps) {
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +66,33 @@ export default function TaskCard({ task, onStatusUpdate }: TaskCardProps) {
         }
     };
 
+    const handleDelete = async () => {
+        if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            console.log('Deleting task:', task.id);
+
+            await deleteTask(task.id);
+            console.log('Task deleted successfully');
+
+            // Call parent callback if provided
+            if (onDelete) {
+                onDelete(task.id);
+            }
+        } catch (error: any) {
+            console.error('Failed to delete task:', error);
+
+            // Show detailed error message
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to delete task';
+            alert(`Error: ${errorMessage}`);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     const getStatusConfig = (status: string) => {
         switch (status) {
             case 'Completed':
@@ -110,13 +139,13 @@ export default function TaskCard({ task, onStatusUpdate }: TaskCardProps) {
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                        disabled={isUpdating}
+                        disabled={isUpdating || isDeleting}
                         className={`flex items-center space-x-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${task.status === 'Completed'
                                 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                 : task.status === 'In Progress'
                                     ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            } ${isUpdating || isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isUpdating ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
@@ -128,7 +157,7 @@ export default function TaskCard({ task, onStatusUpdate }: TaskCardProps) {
                         )}
                     </button>
 
-                    {showStatusDropdown && !isUpdating && (
+                    {showStatusDropdown && !isUpdating && !isDeleting && (
                         <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-10">
                             {['Pending', 'In Progress', 'Completed'].map((status) => (
                                 <button
@@ -149,11 +178,19 @@ export default function TaskCard({ task, onStatusUpdate }: TaskCardProps) {
                     )}
                 </div>
 
-                <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                    <Phone className="h-4 w-4" />
-                </button>
-                <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                    <Mail className="h-4 w-4" />
+                {/* Delete Button */}
+                <button
+                    onClick={handleDelete}
+                    disabled={isDeleting || isUpdating}
+                    className={`p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${isDeleting || isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                    title="Delete task"
+                >
+                    {isDeleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                        <Trash2 className="h-4 w-4" />
+                    )}
                 </button>
             </div>
         </div>

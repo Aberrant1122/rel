@@ -140,6 +140,12 @@ export default function TasksPage() {
                                                     )
                                                 );
                                             }}
+                                            onDelete={(taskId) => {
+                                                // Remove the task from local state
+                                                setTasks(prevTasks =>
+                                                    prevTasks.filter(t => t.id !== taskId)
+                                                );
+                                            }}
                                         />
                                     ))
                                 ) : (

@@ -1,9 +1,10 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
+import { getNotifications } from '@/app/services/notificationsService';
 import {
     Home,
     Users,
@@ -47,6 +48,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Profile', href: '/?tab=profile', icon: User, employeeOnly: true },
+    { name: 'Tasks', href: '/?tab=tasks', icon: CheckSquare, employeeOnly: true },
     { name: 'Attendance', href: '/?tab=attendance', icon: Clock, employeeOnly: true },
     { name: 'Notifications', href: '/?tab=notifications', icon: Bell, employeeOnly: true },
 
@@ -87,6 +89,7 @@ function SidebarContent({ isOpen, onClose }: SidebarProps) {
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
         'Attendance Admin': true // Default expanded
     });
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
 
     const toggleMenu = (name: string) => {
         setExpandedMenus(prev => ({
@@ -94,6 +97,37 @@ function SidebarContent({ isOpen, onClose }: SidebarProps) {
             [name]: !prev[name]
         }));
     };
+
+    // Fetch unread notifications count for employees
+    useEffect(() => {
+        if (isEmployee && user) {
+            const fetchUnreadCount = async () => {
+                try {
+                    const response = await getNotifications(50, 0);
+                    setUnreadNotifications(response.unread || 0);
+                } catch (err) {
+                    console.error('Failed to fetch notifications:', err);
+                    setUnreadNotifications(0);
+                }
+            };
+            
+            fetchUnreadCount();
+            
+            // Refresh every 10 seconds for more responsive updates
+            const interval = setInterval(fetchUnreadCount, 10000);
+            
+            // Listen for custom notification update events
+            const handleNotificationUpdate = () => {
+                fetchUnreadCount();
+            };
+            window.addEventListener('notificationsUpdated', handleNotificationUpdate);
+            
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener('notificationsUpdated', handleNotificationUpdate);
+            };
+        }
+    }, [isEmployee, user, pathname]); // Add pathname to refresh when navigating
 
     const filteredNavigationItems = navigationItems
         .filter(item => {
@@ -234,11 +268,18 @@ function SidebarContent({ isOpen, onClose }: SidebarProps) {
                                             : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
                                             }`}
                                     >
-                                        <Icon
-                                            className={`h-5 w-5 mr-3 ${active ? 'text-emerald-400' : 'text-slate-500 group-hover:text-emerald-600'
-                                                }`}
-                                        />
-                                        {item.name}
+                                        <div className="relative flex items-center flex-1">
+                                            <Icon
+                                                className={`h-5 w-5 mr-3 ${active ? 'text-emerald-400' : 'text-slate-500 group-hover:text-emerald-600'
+                                                    }`}
+                                            />
+                                            <span>{item.name}</span>
+                                            {item.name === 'Notifications' && unreadNotifications > 0 && (
+                                                <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                                                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                                                </span>
+                                            )}
+                                        </div>
                                     </Link>
                                 )}
                             </div>

@@ -21,7 +21,8 @@ function DashboardContent() {
     switch (tab) {
       case 'profile': return 'My Profile';
       case 'attendance': return 'Attendance';
-      case 'notifications': return 'My Tasks';
+      case 'tasks': return 'My Tasks';
+      case 'notifications': return 'Notifications';
       default: return 'Overview';
     }
   };
